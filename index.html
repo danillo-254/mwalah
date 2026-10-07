@@ -20,6 +20,7 @@
                 <a href="#about" class="hover:text-blue-900 transition">About</a>
                 <a href="#vision" class="hover:text-blue-900 transition">Platform</a>
                 <a href="#events" class="hover:text-blue-900 transition">Events</a>
+                <a href="#admin-panel" class="hover:text-blue-900 transition text-blue-600 font-bold"><i class="fa-solid fa-gear mr-1"></i> Manage Site</a>
                 <a href="#contact" class="hover:text-blue-900 transition">Get Involved</a>
             </nav>
             <div class="flex items-center space-x-4">
@@ -54,10 +55,11 @@
                 </div>
             </div>
             <div class="flex justify-center">
-                <!-- Candidate Placeholder Card / Visual -->
+                <!-- Dynamic Candidate Profile Card -->
                 <div class="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl shadow-2xl text-center">
-                    <div class="w-40 h-40 mx-auto rounded-full bg-slate-300 border-4 border-white shadow-inner mb-4 flex items-center justify-center text-slate-600 text-4xl font-bold">
-                        <i class="fa-solid fa-user-tie"></i>
+                    <div id="profile-img-container" class="w-40 h-40 mx-auto rounded-full bg-slate-300 border-4 border-white shadow-inner mb-4 overflow-hidden flex items-center justify-center text-slate-600 text-4xl font-bold">
+                        <img id="display-avatar" src="" alt="Candidate Photo" class="w-full h-full object-cover hidden">
+                        <i id="default-avatar-icon" class="fa-solid fa-user-tie"></i>
                     </div>
                     <h3 class="text-2xl font-bold text-white">Benson Bandari</h3>
                     <p class="text-blue-300 text-sm font-medium mb-4">Dedicated Leadership for Real Change</p>
@@ -115,27 +117,51 @@
                 <h2 class="text-3xl font-black text-slate-900 mb-4">Upcoming Campaign Events</h2>
                 <p class="text-slate-600">Join us on the ground and let your voice be heard.</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-start space-x-6">
-                    <div class="bg-blue-900 text-white px-4 py-3 rounded-xl text-center font-bold">
-                        <span class="block text-xs uppercase tracking-wider">Oct</span>
-                        <span class="text-xl">15</span>
+            <!-- Dynamic Events List Container -->
+            <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Events will be populated automatically via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin / Management Panel Section (To Upload Photo & Add Events) -->
+    <section id="admin-panel" class="py-20 bg-blue-50 border-y border-blue-100">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-white p-8 rounded-3xl shadow-md border border-blue-100">
+                <div class="flex items-center space-x-3 mb-6">
+                    <div class="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-gear"></i>
                     </div>
                     <div>
-                        <h4 class="font-bold text-lg text-slate-900 mb-1">Town Hall Meeting</h4>
-                        <p class="text-sm text-slate-600 mb-2"><i class="fa-solid fa-location-dot text-red-600 mr-2"></i>Community Social Hall, 2:00 PM</p>
-                        <p class="text-xs text-slate-500">Open forum discussing youth development and educational resource allocations.</p>
+                        <h3 class="text-xl font-black text-slate-900">Campaign Management Panel</h3>
+                        <p class="text-xs text-slate-500">Update your profile picture or add new events instantly below.</p>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm flex items-start space-x-6">
-                    <div class="bg-blue-900 text-white px-4 py-3 rounded-xl text-center font-bold">
-                        <span class="block text-xs uppercase tracking-wider">Oct</span>
-                        <span class="text-xl">22</span>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Profile Upload Form -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 class="font-bold text-slate-900 mb-3 text-sm uppercase tracking-wider">1. Update Profile Photo</h4>
+                        <input type="file" id="profile-upload" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-900 file:text-white hover:file:bg-blue-800 cursor-pointer mb-3">
+                        <button type="button" onclick="saveProfileImage()" class="w-full bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-slate-800 transition">
+                            Apply Photo
+                        </button>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-slate-900 mb-1">Grassroots Mobilization Drive</h4>
-                        <p class="text-sm text-slate-600 mb-2"><i class="fa-solid fa-location-dot text-red-600 mr-2"></i>Main Square, 9:00 AM</p>
-                        <p class="text-xs text-slate-500">Meet volunteers, pick up campaign materials, and coordinate local outreach.</p>
+
+                    <!-- Add Event Form -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 class="font-bold text-slate-900 mb-3 text-sm uppercase tracking-wider">2. Add New Event</h4>
+                        <form id="event-form" onsubmit="addNewEvent(event)" class="space-y-3">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="text" id="event-month" placeholder="Month (e.g. NOV)" required class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-900">
+                                <input type="text" id="event-day" placeholder="Day (e.g. 05)" required class="px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-900">
+                            </div>
+                            <input type="text" id="event-title" placeholder="Event Title" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-900">
+                            <input type="text" id="event-location" placeholder="Location & Time" required class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-900">
+                            <button type="submit" class="w-full bg-blue-900 text-white text-xs font-bold py-2.5 rounded-xl hover:bg-blue-800 transition">
+                                Publish Event
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -210,5 +236,57 @@
         </div>
     </footer>
 
-</body>
-</html>
+    <!-- JavaScript to Handle Dynamic Profile Photo & Events -->
+    <script>
+        // Default events if none added yet
+        const defaultEvents = [
+            { month: "OCT", day: "15", title: "Town Hall Meeting", location: "Community Social Hall, 2:00 PM" },
+            { month: "OCT", day: "22", title: "Grassroots Mobilization Drive", location: "Main Square, 9:00 AM" }
+        ];
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProfileImage();
+            loadEvents();
+        });
+
+        // Handle Profile Image Upload
+        function saveProfileImage() {
+            const fileInput = document.getElementById('profile-upload');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('candidate_profile_img', e.target.result);
+                    loadProfileImage();
+                    alert('Profile photo updated successfully!');
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                alert('Please select an image file first.');
+            }
+        }
+
+        function loadProfileImage() {
+            const savedImg = localStorage.getItem('candidate_profile_img');
+            const avatarImg = document.getElementById('display-avatar');
+            const defaultIcon = document.getElementById('default-avatar-icon');
+
+            if (savedImg) {
+                avatarImg.src = savedImg;
+                avatarImg.classList.remove('hidden');
+                defaultIcon.classList.add('hidden');
+            }
+        }
+
+        // Handle Events Management
+        function loadEvents() {
+            let events = JSON.parse(localStorage.getItem('campaign_events'));
+            if (!events) {
+                events = defaultEvents;
+                localStorage.setItem('campaign_events', JSON.stringify(events));
+            }
+
+            const eventsGrid = document.getElementById('events-grid');
+            eventsGrid.innerHTML = '';
+
+            events.forEach((ev,
