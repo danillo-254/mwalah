@@ -20,10 +20,13 @@
                 <a href="#about" class="hover:text-blue-900 transition">About</a>
                 <a href="#vision" class="hover:text-blue-900 transition">Platform</a>
                 <a href="#events" class="hover:text-blue-900 transition">Events</a>
-                <a href="#admin-panel" class="hover:text-blue-900 transition text-blue-600 font-bold"><i class="fa-solid fa-gear mr-1"></i> Manage Site</a>
                 <a href="#contact" class="hover:text-blue-900 transition">Get Involved</a>
             </nav>
             <div class="flex items-center space-x-4">
+                <!-- Admin Toggle Button -->
+                <button onclick="toggleAdminModal()" id="admin-nav-btn" class="text-slate-600 hover:text-blue-900 font-semibold text-sm transition">
+                    <i class="fa-solid fa-lock mr-1"></i> Admin Login
+                </button>
                 <a href="#contact" class="bg-blue-900 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-blue-800 transition shadow-md">
                     Join Team
                 </a>
@@ -124,18 +127,23 @@
         </div>
     </section>
 
-    <!-- Admin / Management Panel Section (To Upload Photo & Add Events) -->
-    <section id="admin-panel" class="py-20 bg-blue-50 border-y border-blue-100">
+    <!-- Admin / Management Panel Section (Hidden by default for regular users) -->
+    <section id="admin-panel" class="py-20 bg-blue-50 border-y border-blue-100 hidden">
         <div class="max-w-4xl mx-auto px-6">
             <div class="bg-white p-8 rounded-3xl shadow-md border border-blue-100">
-                <div class="flex items-center space-x-3 mb-6">
-                    <div class="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-bold">
-                        <i class="fa-solid fa-gear"></i>
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-900 text-white rounded-xl flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-black text-slate-900">Admin Control Panel</h3>
+                            <p class="text-xs text-slate-500">Logged in as Benson (Authorized Access)</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-xl font-black text-slate-900">Campaign Management Panel</h3>
-                        <p class="text-xs text-slate-500">Update your profile picture or add new events instantly below.</p>
-                    </div>
+                    <button onclick="adminLogout()" class="bg-red-100 text-red-600 hover:bg-red-200 px-4 py-2 rounded-xl text-xs font-bold transition">
+                        Logout
+                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -167,6 +175,30 @@
             </div>
         </div>
     </section>
+
+    <!-- Admin Login Modal Overlay -->
+    <div id="admin-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-2xl relative">
+            <button onclick="toggleAdminModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">Admin Portal Login</h3>
+            <p class="text-xs text-slate-500 mb-6">Enter your authorized credentials to manage site content.</p>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Username</label>
+                    <input type="text" id="admin-user" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Password</label>
+                    <input type="password" id="admin-pass" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-900 text-sm">
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white font-bold py-3.5 rounded-xl hover:bg-blue-800 transition shadow-md text-sm">
+                    Authenticate
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Contact & Volunteer Section -->
     <section id="contact" class="py-24 max-w-7xl mx-auto px-6">
@@ -236,19 +268,63 @@
         </div>
     </footer>
 
-    <!-- JavaScript to Handle Dynamic Profile Photo & Events -->
+    <!-- JavaScript Handling Authentication & Dynamic Content -->
     <script>
-        // Default events if none added yet
         const defaultEvents = [
             { month: "OCT", day: "15", title: "Town Hall Meeting", location: "Community Social Hall, 2:00 PM" },
             { month: "OCT", day: "22", title: "Grassroots Mobilization Drive", location: "Main Square, 9:00 AM" }
         ];
 
-        // Load data on page load
         window.addEventListener('DOMContentLoaded', () => {
             loadProfileImage();
             loadEvents();
+            checkAdminSession();
         });
+
+        // Toggle Admin Modal Popup
+        function toggleAdminModal() {
+            const modal = document.getElementById('admin-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Handle Login Verification
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            if (user === "Benson" && pass === "4900") {
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                toggleAdminModal();
+                checkAdminSession();
+                alert('Welcome back, Benson! Admin panel unlocked.');
+            } else {
+                alert('Invalid username or password.');
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('isAdminLoggedIn');
+            checkAdminSession();
+            alert('Logged out from admin panel successfully.');
+        }
+
+        function checkAdminSession() {
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+            const adminPanel = document.getElementById('admin-panel');
+            const navBtn = document.getElementById('admin-nav-btn');
+
+            if (isLoggedIn) {
+                adminPanel.classList.remove('hidden');
+                navBtn.innerHTML = '<i class="fa-solid fa-lock-open mr-1 text-green-600"></i> Admin Active';
+                navBtn.className = "text-green-600 font-bold text-sm transition";
+            } else {
+                adminPanel.classList.add('hidden');
+                navBtn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> Admin Login';
+                navBtn.className = "text-slate-600 hover:text-blue-900 font-semibold text-sm transition";
+            }
+            loadEvents(); // Reload events to show/hide delete buttons
+        }
 
         // Handle Profile Image Upload
         function saveProfileImage() {
@@ -286,7 +362,58 @@
                 localStorage.setItem('campaign_events', JSON.stringify(events));
             }
 
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
             const eventsGrid = document.getElementById('events-grid');
             eventsGrid.innerHTML = '';
 
-            events.forEach((ev,
+            events.forEach((ev, index) => {
+                const deleteBtnHtml = isLoggedIn 
+                    ? `<button onclick="deleteEvent(${index})" class="text-slate-400 hover:text-red-600 text-sm p-1" title="Delete event"><i class="fa-solid fa-trash"></i></button>`
+                    : '';
+
+                const eventCard = `
+                    <div class="bg-white p-6 rounded-2xl shadow-sm flex items-start justify-between space-x-6 relative">
+                        <div class="flex items-start space-x-6">
+                            <div class="bg-blue-900 text-white px-4 py-3 rounded-xl text-center font-bold">
+                                <span class="block text-xs uppercase tracking-wider">${ev.month}</span>
+                                <span class="text-xl">${ev.day}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-lg text-slate-900 mb-1">${ev.title}</h4>
+                                <p class="text-sm text-slate-600"><i class="fa-solid fa-location-dot text-red-600 mr-2"></i>${ev.location}</p>
+                            </div>
+                        </div>
+                        ${deleteBtnHtml}
+                    </div>
+                `;
+                eventsGrid.innerHTML += eventCard;
+            });
+        }
+
+        function addNewEvent(e) {
+            e.preventDefault();
+            const month = document.getElementById('event-month').value.toUpperCase();
+            const day = document.getElementById('event-day').value;
+            const title = document.getElementById('event-title').value;
+            const location = document.getElementById('event-location').value;
+
+            let events = JSON.parse(localStorage.getItem('campaign_events')) || defaultEvents;
+            events.push({ month, day, title, location });
+            localStorage.setItem('campaign_events', JSON.stringify(events));
+
+            document.getElementById('event-form').reset();
+            loadEvents();
+            alert('New event published successfully!');
+        }
+
+        function deleteEvent(index) {
+            if (confirm('Are you sure you want to delete this event?')) {
+                let events = JSON.parse(localStorage.getItem('campaign_events'));
+                events.splice(index, 1);
+                localStorage.setItem('campaign_events', JSON.stringify(events));
+                loadEvents();
+            }
+        }
+    </script>
+</body>
+</html>
